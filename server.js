@@ -180,10 +180,10 @@ app.post("/logout", (req, res) => {
     res.cookie('token', "", { sameSite: 'none', secure: true }).json("ok");
 })
 
+const PORT = process.env.PORT || 5000;
 
 
-
-const server = app.listen(5000);
+const server = app.listen(PORT);
 
 const wss = new ws.WebSocketServer({ server }); //建立websoket server
 
