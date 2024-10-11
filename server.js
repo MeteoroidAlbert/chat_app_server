@@ -18,7 +18,7 @@ mongoose.connect(process.env.MONGO_URL)
     .then(() => console.log("MongoDB connected"))
     .catch(err => console.error("MongoDB connection error:", err));
 
-app.use("/uploads", express.static(__dirname + "/uploads"));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
@@ -93,7 +93,7 @@ app.get("/messages/:userId", async (req, res) => {
                 type: "all-read"
             }));
         }
-        
+
     }
     catch (err) {
         if (err) throw err;
@@ -191,8 +191,8 @@ wss.on("connection", (connection, req) => {        //當某處與wss建立連線
     //向連線到wss的所有用戶端發送訊息:哪些人正在線上
     function notifyAboutOnlinePeople() {
         const onlineUsers = [...wss.clients].map(client => ({ userId: client.userId, username: client.username }))
-        .filter(user => user.userId && user.username);
-        
+            .filter(user => user.userId && user.username);
+
 
         [...wss.clients].forEach(client => {
             client.send(JSON.stringify({
@@ -247,15 +247,15 @@ wss.on("connection", (connection, req) => {        //當某處與wss建立連線
 
     //處理用戶端發送來的訊息
     connection.on("message", async (message) => {
-        
+
         const messageData = JSON.parse(message);
 
         console.log(messageData);
-        
+
         const { recipient, text, file, _id } = messageData;
 
         let filename = null;
-        if (file) {        
+        if (file) {
             filename = file.name;
             const path = __dirname + "/uploads/" + filename;
             const bufferData = new Buffer(file.data.split(",")[1], "base64");
@@ -300,12 +300,12 @@ wss.on("connection", (connection, req) => {        //當某處與wss建立連線
             // const message_id = messageData.message_id;
             // const recipient = messageData.recipient;
             // const sendTime = messageData.sendTime;
-            
 
-            const {message_id, recipient, sender, sendTime} = messageData;
+
+            const { message_id, recipient, sender, sendTime } = messageData;
             await MessageModel.updateOne({ _id: message_id }, { $set: { readByRecipient: true } });
-            
-            const clientsData = [...wss.clients].map(c => ({userId: c.userId, username: c.username, selectedUserId: c.selectedUserId}));
+
+            const clientsData = [...wss.clients].map(c => ({ userId: c.userId, username: c.username, selectedUserId: c.selectedUserId }));
             // console.log(clientsData);
             const clientsNeedToCheckSelectedUSerId = clientsData.filter(client => client.userId === sender);
 
@@ -314,23 +314,23 @@ wss.on("connection", (connection, req) => {        //當某處與wss建立連線
 
             const senderClient = [...wss.clients].filter(client => client.userId === recipient);
             senderClient.forEach(client => {
-                
-                    client.send(JSON.stringify({
-                        type: "read",
-                        message_id: messageData.message_id,
-                        sendTime: sendTime,
-                        yourChatPartnerIsChattingWith: clientsNeedToCheckSelectedUSerId[0].selectedUserId,
-                    }));
-                
+
+                client.send(JSON.stringify({
+                    type: "read",
+                    message_id: messageData.message_id,
+                    sendTime: sendTime,
+                    yourChatPartnerIsChattingWith: clientsNeedToCheckSelectedUSerId[0].selectedUserId,
+                }));
+
             });
         };
 
 
         if (messageData.type === "selected_user_change") {
             connection.selectedUserId = messageData.selectedUserId;
-            const clientsData = [...wss.clients].map(c => ({userId: c.userId, username: c.username, selectedUserId: c.selectedUserId}));
+            const clientsData = [...wss.clients].map(c => ({ userId: c.userId, username: c.username, selectedUserId: c.selectedUserId }));
 
-            
+
 
             // console.log(clientsData);
         }
