@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const ws = require("ws");
 const fs = require("fs"); //fs是Node.js 內建模組，用於處理文件交互行為
+const path = require("path");
 const UserModel = require("./Models/User");
 const MessageModel = require("./Models/Message");
 const { stringify } = require("querystring");
