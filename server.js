@@ -47,10 +47,6 @@ async function getUserDataFromRequest(req) {
 };
 
 
-// app.get("/test", (req, res) => {
-//     res.json("test ok");
-// });
-
 //處理解析前端的GET profile請求，根據token內容解析出iD、username
 app.get("/profile", (req, res) => {
     const token = req.cookies?.token;
@@ -258,11 +254,6 @@ wss.on("connection", (connection, req) => {        //當某處與wss建立連線
         let filename = null;
         if (file) {
             filename = file.name;
-            const path = __dirname + "/uploads/" + filename;
-            const bufferData = new Buffer(file.data.split(",")[1], "base64");
-            fs.writeFile(path, bufferData, () => {
-                console.log("file saved:" + path);
-            })
         }
         if (recipient && (text || file)) {
             //在MessageModel中建立實體訊息資料
@@ -292,17 +283,6 @@ wss.on("connection", (connection, req) => {        //當某處與wss建立連線
 
 
         if (messageData.type === "read") {
-            // console.log([...wss.clients].map(client => ({
-            //     userId: client.userId,
-            //     readyState: client.readyState // 檢查 WebSocket 的狀態
-            // })));
-
-
-            // const message_id = messageData.message_id;
-            // const recipient = messageData.recipient;
-            // const sendTime = messageData.sendTime;
-
-
             const { message_id, recipient, sender, sendTime } = messageData;
             await MessageModel.updateOne({ _id: message_id }, { $set: { readByRecipient: true } });
 
