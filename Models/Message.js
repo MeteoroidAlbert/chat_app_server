@@ -11,7 +11,8 @@ const MessageSchema = new mongoose.Schema({
     },
     text: String,
     file: {
-        name: String
+        name: String,
+        url: String,
     },
     createdAt: {type: Date, default: Date.now},
     readByRecipient: {type: Boolean, default: false},

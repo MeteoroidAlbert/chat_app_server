@@ -252,21 +252,18 @@ wss.on("connection", (connection, req) => {        //當某處與wss建立連線
         const { recipient, text, file, _id } = messageData;
 
         let filename = null;
-        if (file) {
-            filename = file.name;
-        }
         if (recipient && (text || file)) {
             //在MessageModel中建立實體訊息資料
             const messageDoc = await MessageModel.create({
                 sender: connection.userId,
                 recipient,
                 text,
-                file: file ? { name: filename } : null,
+                file: file ? { name: file.name, url: file.url } : null,
                 readByRecipient: false,
                 sendTime: _id,
             });
 
-            console.log("created message");
+            console.log("created message", messageDoc);
 
             //將訊息發送給特定用戶端(聊天對象)
             const recipientClients = [...wss.clients].filter(client => client.userId === recipient)
@@ -274,7 +271,7 @@ wss.on("connection", (connection, req) => {        //當某處與wss建立連線
                 text,
                 sender: connection.userId,
                 recipient,
-                file: file ? { name: filename } : null,
+                file: file ? {  name: file.name, url: file.url } : null,
                 _id: messageDoc._id,
                 readByRecipient: false,
                 sendTime: _id,
